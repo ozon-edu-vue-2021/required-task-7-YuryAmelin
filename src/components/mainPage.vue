@@ -25,7 +25,7 @@
       </div>
       <div class="popularPersons">
         <h2>Популярные люди</h2>
-        <person v-for="man in getPopularPersons" :key="man[2]" :name="man[0]" :id="man[2]" @personClick="openCard">
+        <person v-for="man in getPopularPersons" :key="man[1]" :name="man[0]" :id="man[1]" @personClick="openCard">
           <img src="../i/man.png" alt="">
         </person>
       </div>
@@ -75,10 +75,10 @@ export default {
         obj[el] ? obj[el]++ : obj[el] = 1
       })
     }
-    // сортируем по кол-ву вхождений и добавляем индекс к имени, чтобы не было конфликта при одинаковых именах
+    // сортируем по кол-ву вхождений
     let sorted = Object.entries(obj)
       .map(el => {
-        const person = this.persons.find(item => item.id == el[0])
+        const person = this.persons.find(item => item.id === Number(el[0]))
         el.push(el[0])
         el[0] = person.name
         return el
@@ -87,7 +87,7 @@ export default {
     // сортируем по имени при равных количествах вхождений
     let sortedObjectsCounters = new Set(Object.values(Object.fromEntries(sorted)))
     for (let i of sortedObjectsCounters) {
-      let myArr = sorted.filter(el => el[1] == i)
+      let myArr = sorted.filter(el => Number(el[1]) === i)
       result.push(myArr)
     }
     result.forEach(arr => {
@@ -99,6 +99,12 @@ export default {
       popularIndexes.push(...arr)
     })
     // результат
+    popularIndexes.map(arr => {
+      arr[1] = arr[2]
+      arr.pop()
+      return arr
+    })
+
     this.popularPersons = popularIndexes
   },
   computed: {
@@ -106,7 +112,7 @@ export default {
       return this.persons.find(el => el.id == this.currentId)
     },
     getPopularPersons() {
-      return this.popularPersons.filter(el => el[2] != this.currentId).slice(0, this.amount)
+      return this.popularPersons.filter(el => el[1] != this.currentId).slice(0, this.amount)
     },
     getFriends() {
       return this.persons.filter(el => this.selectedPerson.friends.includes(el.id))
